@@ -37,7 +37,7 @@
                           <li class="list-group-item" v-for="(todo, todoIndex) in todos">
                               <span :class="{ 'del': todo.completed }">@{ todo.title }</span>
                               <div class="btn-group float-right" role="group" aria-label="Basic example">
-                                  <button type="button" class="btn btn-success btn-sm"><span class="fa fa-check"></span></button>
+                                  <button type="button" class="btn btn-success btn-sm" :class="{ 'disabled': todo.completed }" v-on:click="updateTodo(todo, todoIndex)"><span class="fa fa-check"></span></button>
                                   <button type="button" class="btn btn-danger btn-sm" v-on:click="deleteTodo(todo, todoIndex)"><span class="fa fa-trash"></span></button>
                                 </div>
                           </li>
@@ -71,6 +71,13 @@
               if(response.status == 201){
                 this.todos.push({id: response.body.todo_id, title: this.newTodo, completed: false});
                 this.newTodo = '';
+              }
+            });
+          },
+          updateTodo(todo, todoIndex){
+            this.$http.put('todo/'+todo.id, {id: todo.id, title: todo.title, completed: true}).then(response => {
+              if(response.status == 201){
+                this.todos[todoIndex].completed = true;
               }
             });
           },
