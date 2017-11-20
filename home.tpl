@@ -14,6 +14,51 @@
       .del { 
           text-decoration: line-through;
       }
+      .card{
+        border-radius: 0 !important;
+        border: none;
+      }
+      .card-body{
+        padding: 0 !important;
+      }
+      .todo-title{
+        width: 100%;
+        background: #34495e;
+        color: #ecf0f1;
+        font-size: 30px;
+        font-weight: bold;
+        padding: 30px 10px;
+        text-align: center;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+      }
+      .custom-input{
+        border-radius: 0 !important;
+        padding: 10px 10px !important;
+        border-bottom: none;
+      }
+      .custom-input:focus, .custom-input:active{
+        box-shadow: none !important;
+      }
+      .custom-button{
+        border-radius: 0 !important;
+        cursor: pointer;
+      }
+      .custom-button:focus, .custom-button:active{
+        box-shadow: none !important;
+      }
+      .list-group li{
+        border-radius: 0 !important;
+      }
+      .checked{
+        background: #ecf0f1;
+        color: #95a5a6;
+      }
+      .not-checked{
+        background: #1abc9c;
+        color: #FFF;
+        font-weight: bold;
+      }
     </style>
   </head>
   <body>
@@ -22,26 +67,27 @@
             <div class="col-6 offset-3">
                 <br><br>
                 <div class="card">
+                  <div class="todo-title">
+                    Daily Todo Lists
+                  </div>
                   <div class="card-body">
-                      <div class="input-group">
+                      <form v-on:submit="addTodo">
+                        <div class="input-group">
+                          <input type="text" v-model="newTodo" class="form-control custom-input" placeholder="Add your todo" v-focus required>
                           <span class="input-group-btn">
-                            <button class="btn btn-success" type="button" v-on:click="addTodo"><span class="fa fa-plus"></span></button>
-                          </span>
-                          <input type="text" v-model="newTodo" class="form-control" placeholder="Add/Search your todo">
-                          <span class="input-group-btn">
-                            <button class="btn btn-primary" type="button"><span class="fa fa-search"></span></button>
+                            <button class="btn btn-success custom-button" type="submit"><span class="fa fa-plus"></span></button>
                           </span>
                         </div>
-                        <hr>
-                        <ul class="list-group">
-                          <li class="list-group-item" v-for="(todo, todoIndex) in todos">
-                              <span :class="{ 'del': todo.completed }">@{ todo.title }</span>
-                              <div class="btn-group float-right" role="group" aria-label="Basic example">
-                                  <button type="button" class="btn btn-success btn-sm" :class="{ 'disabled': todo.completed }" v-on:click="updateTodo(todo, todoIndex)"><span class="fa fa-check"></span></button>
-                                  <button type="button" class="btn btn-danger btn-sm" v-on:click="deleteTodo(todo, todoIndex)"><span class="fa fa-trash"></span></button>
-                                </div>
-                          </li>
-                        </ul>
+                      </form>
+                      <ul class="list-group">
+                        <li class="list-group-item" :class="{ 'checked': todo.completed, 'not-checked': !todo.completed }" v-for="(todo, todoIndex) in todos">
+                            <span :class="{ 'del': todo.completed }">@{ todo.title }</span>
+                            <div class="btn-group float-right" role="group" aria-label="Basic example">
+                                <button type="button" class="btn btn-success btn-sm custom-button" :class="{ 'disabled': todo.completed }" v-on:click="updateTodo(todo, todoIndex)"><span class="fa fa-check"></span></button>
+                                <button type="button" class="btn btn-danger btn-sm custom-button" v-on:click="deleteTodo(todo, todoIndex)"><span class="fa fa-trash"></span></button>
+                              </div>
+                        </li>
+                      </ul>
                   </div>
                 </div>
             </div>
@@ -82,11 +128,13 @@
             });
           },
           deleteTodo(todo, todoIndex){
-            this.$http.delete('todo/'+todo.id).then(response => {
-              if(response.status == 200){
-                this.todos.splice(todoIndex, 1);
-              }
-            });
+            if(confirm("Are you sure ?")){
+              this.$http.delete('todo/'+todo.id).then(response => {
+                if(response.status == 200){
+                  this.todos.splice(todoIndex, 1);
+                }
+              });
+            }
           }
         }
       });
