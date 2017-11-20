@@ -21,8 +21,10 @@ var rnd *renderer.Render
 var db *mgo.Database
 
 const (
+	hostName       string = "localhost:27017"
 	dbName         string = "demo_todo"
 	collectionName string = "todo"
+	port           string = ":9000"
 )
 
 type (
@@ -43,7 +45,7 @@ type (
 
 func init() {
 	rnd = renderer.New()
-	sess, err := mgo.Dial("localhost:27017")
+	sess, err := mgo.Dial(hostName)
 	checkErr(err)
 	sess.SetMode(mgo.Monotonic, true)
 	db = sess.DB(dbName)
@@ -116,7 +118,7 @@ func updateTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// if input is okay, create a todo
+	// if input is okay, update a todo
 	if err := db.C(collectionName).
 		Update(
 			bson.M{"_id": bson.ObjectIdHex(id)},
@@ -195,7 +197,6 @@ func main() {
 
 	r.Mount("/todo", todoHandlers())
 
-	port := ":9000"
 	srv := &http.Server{
 		Addr:         port,
 		Handler:      r,
@@ -224,7 +225,7 @@ func todoHandlers() http.Handler {
 	rg.Group(func(r chi.Router) {
 		r.Get("/", fetchTodos)
 		r.Post("/", createTodo)
-		r.Post("/{id}", updateTodo)
+		r.Put("/{id}", updateTodo)
 		r.Delete("/{id}", deleteTodo)
 	})
 	return rg
