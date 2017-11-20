@@ -10,6 +10,11 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style type="text/css">
+      .del { 
+          text-decoration: line-through;
+      }
+    </style>
   </head>
   <body>
     <div class="container" id="root">
@@ -29,11 +34,11 @@
                         </div>
                         <hr>
                         <ul class="list-group">
-                          <li class="list-group-item" v-for="todo in todos">
-                              @{ todo.title }
+                          <li class="list-group-item" v-for="(todo, todoIndex) in todos">
+                              <span :class="{ 'del': todo.completed }">@{ todo.title }</span>
                               <div class="btn-group float-right" role="group" aria-label="Basic example">
                                   <button type="button" class="btn btn-success btn-sm"><span class="fa fa-check"></span></button>
-                                  <button type="button" class="btn btn-danger btn-sm" v-on:click="deleteTodo(todo)"><span class="fa fa-trash"></span></button>
+                                  <button type="button" class="btn btn-danger btn-sm" v-on:click="deleteTodo(todo, todoIndex)"><span class="fa fa-trash"></span></button>
                                 </div>
                           </li>
                         </ul>
@@ -63,11 +68,19 @@
         methods: {
           addTodo(){
             this.$http.post('todo', {title: this.newTodo}).then(response => {
-              console.log(response.body);
-              this.todos.push({id: response.body.todo_id, title: this.newTodo});
-              this.newTodo = '';
+              if(response.status == 201){
+                this.todos.push({id: response.body.todo_id, title: this.newTodo, completed: false});
+                this.newTodo = '';
+              }
             });
-          };
+          },
+          deleteTodo(todo, todoIndex){
+            this.$http.delete('todo/'+todo.id).then(response => {
+              if(response.status == 200){
+                this.todos.splice(todoIndex, 1);
+              }
+            });
+          }
         }
       });
     </script>

@@ -182,7 +182,7 @@ func deleteTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rnd.JSON(w, http.StatusBadRequest, renderer.M{
+	rnd.JSON(w, http.StatusOK, renderer.M{
 		"message": "Todo deleted successfully",
 	})
 }
