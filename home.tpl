@@ -54,6 +54,9 @@
         background: #ecf0f1;
         color: #95a5a6;
       }
+      .error{
+        border: 2px solid #e74c3c !important;
+      }
       .not-checked{
         background: #1abc9c;
         color: #FFF;
@@ -71,9 +74,9 @@
                     Daily Todo Lists
                   </div>
                   <div class="card-body">
-                      <form>
+                      <form v-on:submit.prevent>
                         <div class="input-group">
-                          <input type="text" v-model="todo.title" class="form-control custom-input" placeholder="Add your todo">
+                          <input type="text" v-model="todo.title" v-on:keyup="checkForEnter($event)" class="form-control custom-input" :class="{ 'error': showError }" placeholder="Add your todo">
                           <span class="input-group-btn">
                             <button class="btn custom-button" :class="{'btn-success' : !enableEdit, 'btn-warning' : enableEdit}" type="button"  v-on:click="addTodo"><span :class="{'fa fa-plus' : !enableEdit, 'fa fa-edit' : enableEdit}"></span></button>
                           </span>
@@ -104,6 +107,7 @@
         el: '#root',
         delimiters: ['@{', '}'],
         data: {
+          showError: false,
           enableEdit: false,
           todo: {id: '', title: '', completed: false},
           todos: []
@@ -115,30 +119,43 @@
         },
         methods: {
           addTodo(){
-            if(this.enableEdit){
-              this.$http.put('todo/'+this.todo.id, this.todo).then(response => {
-                if(response.status == 201){
-                  this.todos[this.todo.todoIndex] = this.todo;
-                }
-              });
-              this.todo = {id: '', title: '', completed: false};
-              this.enableEdit = false;
+            if (this.todo.title == ''){
+              this.showError = true;
             }else{
-              this.$http.post('todo', {title: this.todo.title}).then(response => {
-                if(response.status == 201){
-                  this.todos.push({id: response.body.todo_id, title: this.todo.title, completed: false});
-                  this.todo = {id: '', title: '', completed: false};
-                }
-              });
+              this.showError = false;
+              if(this.enableEdit){
+                this.$http.put('todo/'+this.todo.id, this.todo).then(response => {
+                  if(response.status == 201){
+                    this.todos[this.todo.todoIndex] = this.todo;
+                  }
+                });
+                this.todo = {id: '', title: '', completed: false};
+                this.enableEdit = false;
+              }else{
+                this.$http.post('todo', {title: this.todo.title}).then(response => {
+                  if(response.status == 201){
+                    this.todos.push({id: response.body.todo_id, title: this.todo.title, completed: false});
+                    this.todo = {id: '', title: '', completed: false};
+                  }
+                });
+              }
+            }
+          },
+          checkForEnter(event){
+            event.pro
+            if (event.key == "Enter") {
+              this.addTodo();
             }
           },
           toggleTodo(todo, todoIndex){
             var completedToggle;
+
             if (todo.completed == true) {
               completedToggle = false;
             }else{
               completedToggle = true;
             }
+
             this.$http.put('todo/'+todo.id, {id: todo.id, title: todo.title, completed: completedToggle}).then(response => {
               if(response.status == 201){
                 this.todos[todoIndex].completed = completedToggle;
