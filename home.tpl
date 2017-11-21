@@ -27,10 +27,10 @@
         color: #ecf0f1;
         font-size: 30px;
         font-weight: bold;
-        padding: 30px 10px;
+        padding: 20px 10px;
         text-align: center;
-        border-top-left-radius: 20px;
-        border-top-right-radius: 20px;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
       }
       .custom-input{
         border-radius: 0 !important;
@@ -81,6 +81,7 @@
                       </form>
                       <ul class="list-group">
                         <li class="list-group-item" :class="{ 'checked': todo.completed, 'not-checked': !todo.completed }" v-for="(todo, todoIndex) in todos">
+                            <i :class="{'fa fa-circle': !todo.completed, 'fa fa-check-circle text-success': todo.completed }">&nbsp;</i>
                             <span :class="{ 'del': todo.completed }">@{ todo.title }</span>
                             <div class="btn-group float-right" role="group" aria-label="Basic example">
                                 <button type="button" class="btn btn-success btn-sm custom-button" :class="{ 'disabled': todo.completed }" v-on:click="updateTodo(todo, todoIndex)"><span class="fa fa-check"></span></button>
