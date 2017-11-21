@@ -131,7 +131,7 @@ func updateTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rnd.JSON(w, http.StatusCreated, renderer.M{
+	rnd.JSON(w, http.StatusOK, renderer.M{
 		"message": "Todo updated successfully",
 	})
 }

@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <style type="text/css">
-      .del { 
+      .del {
           text-decoration: line-through;
       }
       .card{
@@ -117,7 +117,7 @@
           addTodo(){
             if(this.enableEdit){
               this.$http.put('todo/'+this.todo.id, this.todo).then(response => {
-                if(response.status == 201){
+                if(response.status == 200){
                   this.todos[this.todo.todoIndex] = this.todo;
                 }
               });
