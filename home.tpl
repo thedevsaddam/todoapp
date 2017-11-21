@@ -71,22 +71,22 @@
                     Daily Todo Lists
                   </div>
                   <div class="card-body">
-                      <form v-on:submit="addTodo">
+                      <form>
                         <div class="input-group">
-                          <input type="text" v-model="newTodo" class="form-control custom-input" placeholder="Add your todo" v-focus required>
+                          <input type="text" v-model="todo.title" class="form-control custom-input" placeholder="Add your todo">
                           <span class="input-group-btn">
-                            <button class="btn btn-success custom-button" type="submit"><span class="fa fa-plus"></span></button>
+                            <button class="btn custom-button" :class="{'btn-success' : !enableEdit, 'btn-warning' : enableEdit}" type="button"  v-on:click="addTodo"><span :class="{'fa fa-plus' : !enableEdit, 'fa fa-edit' : enableEdit}"></span></button>
                           </span>
                         </div>
                       </form>
                       <ul class="list-group">
-                        <li class="list-group-item" :class="{ 'checked': todo.completed, 'not-checked': !todo.completed }" v-for="(todo, todoIndex) in todos">
+                        <li class="list-group-item" :class="{ 'checked': todo.completed, 'not-checked': !todo.completed }" v-for="(todo, todoIndex) in todos" v-on:click="toggleTodo(todo, todoIndex)">
                             <i :class="{'fa fa-circle': !todo.completed, 'fa fa-check-circle text-success': todo.completed }">&nbsp;</i>
                             <span :class="{ 'del': todo.completed }">@{ todo.title }</span>
                             <div class="btn-group float-right" role="group" aria-label="Basic example">
-                                <button type="button" class="btn btn-success btn-sm custom-button" :class="{ 'disabled': todo.completed }" v-on:click="updateTodo(todo, todoIndex)"><span class="fa fa-check"></span></button>
-                                <button type="button" class="btn btn-danger btn-sm custom-button" v-on:click="deleteTodo(todo, todoIndex)"><span class="fa fa-trash"></span></button>
-                              </div>
+                              <button type="button" class="btn btn-success btn-sm custom-button" v-on:click.prevent.stop v-on:click="editTodo(todo, todoIndex)"><span class="fa fa-edit"></span></button>
+                              <button type="button" class="btn btn-danger btn-sm custom-button" v-on:click.prevent.stop v-on:click="deleteTodo(todo, todoIndex)"><span class="fa fa-trash"></span></button>
+                            </div>
                         </li>
                       </ul>
                   </div>
@@ -104,7 +104,8 @@
         el: '#root',
         delimiters: ['@{', '}'],
         data: {
-          newTodo: '',
+          enableEdit: false,
+          todo: {id: '', title: '', completed: false},
           todos: []
         },
         mounted () {
@@ -114,19 +115,40 @@
         },
         methods: {
           addTodo(){
-            this.$http.post('todo', {title: this.newTodo}).then(response => {
+            if(this.enableEdit){
+              this.$http.put('todo/'+this.todo.id, this.todo).then(response => {
+                if(response.status == 201){
+                  this.todos[this.todo.todoIndex] = this.todo;
+                }
+              });
+              this.todo = {id: '', title: '', completed: false};
+              this.enableEdit = false;
+            }else{
+              this.$http.post('todo', {title: this.todo.title}).then(response => {
+                if(response.status == 201){
+                  this.todos.push({id: response.body.todo_id, title: this.todo.title, completed: false});
+                  this.todo = {id: '', title: '', completed: false};
+                }
+              });
+            }
+          },
+          toggleTodo(todo, todoIndex){
+            var completedToggle;
+            if (todo.completed == true) {
+              completedToggle = false;
+            }else{
+              completedToggle = true;
+            }
+            this.$http.put('todo/'+todo.id, {id: todo.id, title: todo.title, completed: completedToggle}).then(response => {
               if(response.status == 201){
-                this.todos.push({id: response.body.todo_id, title: this.newTodo, completed: false});
-                this.newTodo = '';
+                this.todos[todoIndex].completed = completedToggle;
               }
             });
           },
-          updateTodo(todo, todoIndex){
-            this.$http.put('todo/'+todo.id, {id: todo.id, title: todo.title, completed: true}).then(response => {
-              if(response.status == 201){
-                this.todos[todoIndex].completed = true;
-              }
-            });
+          editTodo(todo, todoIndex){
+            this.enableEdit = true;
+            this.todo = todo;
+            this.todo.todoIndex = todoIndex;
           },
           deleteTodo(todo, todoIndex){
             if(confirm("Are you sure ?")){
