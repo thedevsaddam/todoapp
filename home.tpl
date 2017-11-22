@@ -142,7 +142,6 @@
             }
           },
           checkForEnter(event){
-            event.pro
             if (event.key == "Enter") {
               this.addTodo();
             }
@@ -172,6 +171,7 @@
               this.$http.delete('todo/'+todo.id).then(response => {
                 if(response.status == 200){
                   this.todos.splice(todoIndex, 1);
+                  this.todo = {id: '', title: '', completed: false};
                 }
               });
             }
