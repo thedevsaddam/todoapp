@@ -48,6 +48,7 @@
         box-shadow: none !important;
       }
       .list-group li{
+        cursor: pointer;
         border-radius: 0 !important;
       }
       .checked{
